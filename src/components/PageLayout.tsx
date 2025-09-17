@@ -1,67 +1,149 @@
 "use client";
 
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faGithub, faInstagram, faTwitter, faLinkedin} from '@fortawesome/free-brands-svg-icons';
+import { FaGithub, FaLinkedin, FaBars, FaTimes } from "react-icons/fa";
 import Image from "next/image";
 import { useLanguage } from '@/contexts/LanguageContext';
 
+
 export function Navbar() {
     const { language, setLanguage, t } = useLanguage();
+    const [open, setOpen] = useState(false);
+
+    const toggleMenu = () => setOpen((v) => !v);
+    const closeMenu = () => setOpen(false);
+
+    // Prevent body scroll when menu is open
+    useEffect(() => {
+        const prev = document.body.style.overflow;
+        if (open) document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = prev;
+        };
+    }, [open]);
 
     return (
         <div className="pb-20">
             <div className="w-full bg-gray-900 fixed top-0 z-50">
                 <nav className="flex items-center justify-between p-6">
+                    {/* Logo */}
                     <div>
-                        <Link href={"/"}>
-                            <Image src='/logo.png' width={160} height={40} className='logo' alt={'Your logo'}/>
+                        <Link href={"/"} onClick={closeMenu}>
+                            <Image
+                                src="/logo.png"
+                                width={160}
+                                height={40}
+                                className="logo"
+                                alt="Your logo"
+                            />
                         </Link>
                     </div>
-                    <div className="flex items-center space-x-8">
+
+                    {/* Desktop nav */}
+                    <div className="hidden md:flex items-center space-x-8">
                         {/* Navigation Links */}
                         <div className="space-x-8 text-white">
-                            <Link href={"/"} className={"text-xl hover:text-green-400 hover:underline hover:font-bold hover:text-2xl"}>
-                                {t('nav.home')}
+                            <Link href="/" className="text-xl hover:text-green-400 hover:underline hover:font-bold hover:text-2xl">
+                                {t("nav.home")}
                             </Link>
-                            <Link href={"/projects"} className={"text-xl hover:text-green-400 hover:underline hover:font-bold hover:text-2xl"}>
-                                {t('nav.projects')}
+                            <Link href="/projects" className="text-xl hover:text-green-400 hover:underline hover:font-bold hover:text-2xl">
+                                {t("nav.projects")}
                             </Link>
-                            <Link href={"/news"} className={"text-xl hover:text-green-400 hover:underline hover:font-bold hover:text-2xl"}>
-                                {t('nav.news')}
+                            <Link href="/news" className="text-xl hover:text-green-400 hover:underline hover:font-bold hover:text-2xl">
+                                {t("nav.news")}
                             </Link>
-                            <Link href={"/contact"} className={"text-xl hover:text-green-400 hover:underline hover:font-bold hover:text-2xl"}>
-                                {t('nav.contact')}
+                            <Link href="/contact" className="text-xl hover:text-green-400 hover:underline hover:font-bold hover:text-2xl">
+                                {t("nav.contact")}
                             </Link>
                         </div>
 
                         {/* Language Toggle Buttons */}
                         <div className="flex gap-2 ml-6">
                             <button
-                                onClick={() => setLanguage('en')}
+                                onClick={() => setLanguage("en")}
                                 className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                                    language === 'en'
-                                        ? 'bg-green-600 text-white'
-                                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                    language === "en"
+                                        ? "bg-green-600 text-white"
+                                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                                 }`}
                             >
                                 EN
                             </button>
                             <button
-                                onClick={() => setLanguage('de')}
+                                onClick={() => setLanguage("de")}
                                 className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                                    language === 'de'
-                                        ? 'bg-green-600 text-white'
-                                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                    language === "de"
+                                        ? "bg-green-600 text-white"
+                                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                                 }`}
                             >
                                 DE
                             </button>
                         </div>
                     </div>
+
+                    {/* Mobile toggle button */}
+                    <button
+                        className="md:hidden text-2xl text-green-500"
+                        onClick={toggleMenu}
+                        aria-label={open ? "Close menu" : "Open menu"}
+                        aria-expanded={open}
+                        aria-controls="mobile-menu"
+                    >
+                        {open ? <FaTimes /> : <FaBars />}
+                    </button>
                 </nav>
             </div>
+
+            {/* Mobile drawer */}
+            {open && (
+                <div
+                    id="mobile-menu"
+                    className="md:hidden fixed inset-0 mt-20 bg-gray-900 text-white z-40 flex flex-col p-6 space-y-4"
+                    role="dialog"
+                    aria-modal="true"
+                >
+                    <Link href="/" onClick={closeMenu} className="text-xl px-4 py-3 rounded hover:bg-green-600 transition">
+                        {t("nav.home")}
+                    </Link>
+                    <Link href="/projects" onClick={closeMenu} className="text-xl px-4 py-3 rounded hover:bg-green-600 transition">
+                        {t("nav.projects")}
+                    </Link>
+                    <Link href="/news" onClick={closeMenu} className="text-xl px-4 py-3 rounded hover:bg-green-600 transition">
+                        {t("nav.news")}
+                    </Link>
+                    <Link href="/contact" onClick={closeMenu} className="text-xl px-4 py-3 rounded hover:bg-green-600 transition">
+                        {t("nav.contact")}
+                    </Link>
+
+                    {/* Language toggle */}
+                    <div className="mt-6 grid grid-cols-2 gap-2">
+                        <button
+                            onClick={() => {
+                                setLanguage("en");
+                                closeMenu();
+                            }}
+                            className={`w-full px-4 py-2 rounded font-bold ${
+                                language === "en" ? "bg-green-600 text-white" : "bg-gray-700 text-gray-300"
+                            }`}
+                        >
+                            EN
+                        </button>
+                        <button
+                            onClick={() => {
+                                setLanguage("de");
+                                closeMenu();
+                            }}
+                            className={`w-full px-4 py-2 rounded font-bold ${
+                                language === "de" ? "bg-green-600 text-white" : "bg-gray-700 text-gray-300"
+                            }`}
+                        >
+                            DE
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -142,20 +224,12 @@ export function Footer() {
 
                 {/* Second Row: Social Media Icons*/}
                 <div className="flex justify-center mt-6 space-x-4 text-2xl">
-                    <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-                        <FontAwesomeIcon icon={faTwitter} className="text-white hover:text-green-400"/>
-                    </Link>
-
-                    <Link href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
-                        <FontAwesomeIcon icon={faInstagram} className="text-white hover:text-green-400"/>
-                    </Link>
-
                     <Link href="https://github.com" target="_blank" rel="noopener noreferrer">
-                        <FontAwesomeIcon icon={faGithub} className="text-white hover:text-green-400"/>
+                        <FaGithub className="text-white hover:text-green-400" aria-label={"GitHub"}/>
                     </Link>
 
                     <Link href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">
-                        <FontAwesomeIcon icon={faLinkedin} className="text-white hover:text-green-400"/>
+                        <FaLinkedin className="text-white hover:text-green-400" aria-label="LinkedIn"/>
                     </Link>
                 </div>
 
